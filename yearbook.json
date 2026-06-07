@@ -1,0 +1,29 @@
+[
+    {
+        "username": "lyndix",
+        "user_id": 763774786773450752,
+        "quote": "yummy yummy ketchup chippies",
+        "image_path": "images/763774786773450752.jpg"
+    },
+    {
+        "username": "slobodnousername",
+        "user_id": 624750676190298195,
+        "quote": "gay gay homosexual",
+        "image_path": "images/624750676190298195.png",
+        "category": "Event Department"
+    },
+    {
+        "username": "harry_16",
+        "user_id": 853656926981980220,
+        "quote": "Hi",
+        "image_path": "images/853656926981980220.png",
+        "category": "Department Manager"
+    },
+    {
+        "username": "sussytuna",
+        "user_id": 872714596484538439,
+        "quote": "leon",
+        "image_path": "images/872714596484538439.png",
+        "category": "Moderator"
+    }
+]

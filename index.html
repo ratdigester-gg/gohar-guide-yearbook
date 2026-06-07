@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Yearbook</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #1a3644; /* Summer Update: Deep Ocean Blue */
+            color: #ffffff;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+        h1 { color: #ffca3a; margin-bottom: 10px; font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); } /* Summer Update: Sun Yellow */
+        p.subtitle { color: #a2b9c4; margin-bottom: 30px; font-size: 1.1rem; } /* Summer Update: Seafoam Mist */
+        
+        /* Admin Controls */
+        .admin-panel {
+            background: #f7f5f0; /* Summer Update: Warm Sandy White */
+            padding: 12px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 40px;
+            border: 1px solid #1982c4; /* Summer Update: Pool Blue */
+        }
+        .admin-btn {
+            background: #1982c4; /* Summer Update: Pool Blue */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .admin-btn.active { background: #ff595e; } /* Summer Update: Sunset Coral */
+
+        /* Category Sections */
+        .category-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            text-align: left; /* Left-align group content */
+        }
+        .category-title {
+            font-size: 1.6rem;
+            color: #ffca3a; /* Summer Update: Sun Yellow */
+            border-bottom: 2px solid #ff595e; /* Summer Update: Sunset Coral underline */
+            padding-bottom: 8px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #f7f5f0; /* Summer Update: Warm Sandy White */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            position: relative;
+            border: 1px solid #e1ded7;
+            text-align: center; /* Center content inside individual cards */
+            
+            /* Animation Update: Prepares the card to animate smoothly on hover */
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+        }
+        
+        /* Animation Update: Card Hover Effect (lifts up and casts a bigger shadow) */
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.5), 0 10px 10px rgba(0,0,0,0.3);
+        }
+
+        .card img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 50%; /* Keeps your circular image formatting */
+            border: 3px solid #1982c4; /* Summer Update: Pool Blue Ring */
+            margin: 0 auto;
+            display: block;
+            
+            /* Animation Update: Prepares the avatar border ring to animate smoothly */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Animation Update: Avatar Hover Effect (glow ring around picture) */
+        .card:hover img {
+            border-color: #ff595e; /* Changes ring from Pool Blue to Sunset Coral */
+            box-shadow: 0 0 12px rgba(255, 89, 94, 0.6);
+        }
+
+        .name {
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin: 15px 0 8px 0;
+            color: #1982c4; /* Summer Update: Pool Blue Text */
+        }
+        .quote {
+            font-style: italic;
+            color: #4a4e51; /* Summer Update: Dark Charcoal for readability on light sand bg */
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        
+        /* Delete Button styling */
+        .delete-overlay {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ff595e; /* Summer Update: Sunset Coral */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 32px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 10;
+            transition: transform 0.2s ease;
+        }
+        
+        /* Animation Update: Slight pop effect when hovering specifically over the 'X' button */
+        .delete-overlay:hover {
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body>
+
+    <h1> Gohar's Guide Server Yearbook 2026</h1>
+    <p class="subtitle">Memories, quotes, and chaos from the server!</p>
+    
+    <div class="admin-panel">
+        <button class="admin-btn" id="toggle-admin" onclick="toggleAdminMode()">Turn On Moderation Mode</button>
+    </div>
+    
+    <div id="yearbook-container"></div>
+
+    <script>
+        let adminMode = false;
+
+        // FIXED: Re-added missing formatting layout structure safely
+        const categoryOrder = [
+            'Server Manager', 'Department Manager', 'Admin', 'Sr. Moderator', 'Junior Moderator', 'Moderator',
+            'Event Department', 'Alumni Staff', 'Youtube Member', 'Contributor', 'Elite', 'Veteran', 'Regular', 'Active'
+        ];
+
+        // Fetch and render data from your bot's json file
+        fetch('yearbook.json')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('yearbook-container');
+                if(data.length === 0) {
+                    container.innerHTML = "<p style='color: #a2b9c4;'>No submissions yet! Tell them to type /submit in the server.</p>";
+                    return;
+                }
+                
+                // Group user data items by their assigned category values
+                const groups = {};
+                data.forEach(item => {
+                    const cat = item.category || 'General Member';
+                    if (!groups[cat]) groups[cat] = [];
+                    groups[cat].push(item);
+                });
+
+                // Generate HTML categories in sequential order
+                let globalCardIndex = 0;
+                categoryOrder.forEach(catName => {
+                    if (groups[catName] && groups[catName].length > 0) {
+                        
+                        // 1. Create section layout block
+                        const section = document.createElement('div');
+                        section.className = 'category-section';
+                        
+                        // 2. Attach clean heading title
+                        const title = document.createElement('div');
+                        title.className = 'category-title';
+                        title.textContent = ` ${catName}s :3`; 
+                        section.appendChild(title);
+                        
+                        // 3. Create grid layout container
+                        const grid = document.createElement('div');
+                        grid.className = 'grid';
+                        
+                        // 4. Populate users into group container grids
+                        groups[catName].forEach(student => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            card.id = `card-${globalCardIndex}`;
+                            card.innerHTML = `
+                                <button class="delete-overlay" onclick="removeCard('${card.id}')">✕</button>
+                                <img src="${student.image_path}" alt="submission photo">
+                                <div class="name">@${student.username}</div>
+                                <div class="quote">"${student.quote}"</div>
+                            `;
+                            grid.appendChild(card);
+                            globalCardIndex++;
+                        });
+                        
+                        section.appendChild(grid);
+                        container.appendChild(section);
+                    }
+                });
+            })
+            .catch(err => console.error("Error loading yearbook data:", err));
+
+        // Toggle the visibility of the delete buttons
+        function toggleAdminMode() {
+            adminMode = !adminMode;
+            const btn = document.getElementById('toggle-admin');
+            const deleteButtons = document.querySelectorAll('.delete-overlay');
+            
+            if (adminMode) {
+                btn.textContent = "Exit Moderation Mode";
+                btn.classList.add('active');
+                deleteButtons.forEach(b => b.style.display = 'block');
+            } else {
+                btn.textContent = "Turn On Moderation Mode";
+                btn.classList.remove('active');
+                deleteButtons.forEach(b => b.style.display = 'none');
+            }
+        }
+
+        // Hides the card instantly from the webpage view 
+        function removeCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (confirm("Do you want to hide this submission from the website view?")) {
+                card.remove();
+            }
+        }
+    </script>
+</body>
+</html>
